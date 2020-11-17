@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Caro</title>
+    <style>
+        :root {
+            --box-size:40px;
+        }
+        *  {
+            box-sizing:border-box;
+        }
+
+        body {
+            background-color:lightgoldenrodyellow;
+        }
+        .box {
+            display:inline-block;
+            width:var(--box-size);
+            height:var(--box-size);
+            border:1px solid black;
+            margin:0 0;
+            padding:0;
+        }
+    </style>
+</head>
+<body>
+<!--input cols and rows of the game-->
+<div class="start-game">
+    <input type="text" id="cols" placeholder="Max : 9 columns" value="9">
+    <input type="text" id="rows" placeholder="Max : 9 rows" value="9">
+    <button type="button" onclick="startGame()">Apply/Restart</button>
+</div>
+<!--play interface-->
+<div class="gameplay" id="game-play">
+
+</div>
+<!--end game-->
+<div >
+<p id="end-game"></p>
+</div>
+<script>
+    let inGame='';
+    let cols=0,rows=0;
+    function startGame()
+    {
+        document.getElementById('game-play').innerHTML='';
+        /*start game*/
+        cols=+document.getElementById('cols').value;
+        rows=+document.getElementById('rows').value;
+        for(let i=1;i<=rows;i++)
+        {
+            for(let j=1;j<=cols;j++)
+            {
+                inGame+='<p class="box"'+' id='+'"'+i+j+'"'+' onclick="play(id)">.</p>';
+            }
+            inGame+='<br>';
+        }
+
+        document.getElementById('game-play').innerHTML=inGame;
+    }
+
+    /*play game = click : X / O */
+    let player='X';
+    function play(value)
+    {
+        let xo=document.getElementById(value).textContent;
+        if(xo=='.')
+        {
+            document.getElementById(value).innerHTML=player;
+            if(player=='X') player='O';
+            else player='X';
+
+            /*check win*/
+            if(checkWin(value)==true)
+            {
+                document.getElementById('end-game').innerHTML=(player=='X')?'O win !':'X win !';
+            }
+        }
+        else
+        {
+            alert('Not here !');
+        }
+    }
+
+    /* check win */
+    function checkWin(position)
+    {
+        let x=+position[0],y=+position[1];
+
+        /*check style 1*/
+        if(x-1>=1&&x+1<=rows)
+        {
+            let x_=x-1;
+            let _x=x+1;
+            let pos11=document.getElementById(x+''+y).textContent;
+            let pos10=document.getElementById(x_+''+y).textContent;
+            let pos12=document.getElementById(_x+''+y).textContent;
+            if(pos11==pos10 && pos10==pos12 && (pos11=='X' || pos11=='O'))
+            {
+                let point_win=0;/*check prevent*/
+                if(x-2>=1)
+                {
+                    let x__=x-2;
+                    let thread=document.getElementById(x__+''+y).textContent;
+                    if(thread==pos11 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+                if(x+2<=rows)
+                {
+                    let __x=x+2;
+                    let thread=document.getElementById(__x+''+y).textContent;
+                    if(thread==pos11 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+
+                if(point_win==2) return true;
+            }
+        }
+
+        /*check 2*/
+        if(y-1>=1 && y+1<=cols)
+        {
+            let y_=y-1,_y=y+1;
+
+            let pos10=document.getElementById(x+''+y_).textContent;
+            let pos11=document.getElementById(x+''+y).textContent;
+            let pos12=document.getElementById(x+''+_y).textContent;
+            if(pos10==pos11 && pos11==pos12 && (pos11=='X' || pos11=='O'))
+            {
+                let point_win=0;
+                if(y-2>=1)
+                {
+                    let y__=y-2;
+                    let thread=document.getElementById(x+''+y__).textContent;
+                    if(thread==pos11 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+                if(y+2<=cols)
+                {
+                    let __y=y+2;
+                    let thread=document.getElementById(x+''+__y).textContent;
+                    if(thread==pos11 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+                if(point_win==2) return true;
+            }
+        }
+
+        /*check 3 + 4*/
+        if(x-1>=1 && y-1>=1 && x+1<=rows && y+1<=cols)
+        {
+            console.log('checked');
+            let x_=x-1,_x=x+1,y_=y-1,_y=y+1;
+            let pos00=document.getElementById(x_+''+y_).textContent;
+            let pos11=document.getElementById(x+''+y).textContent;
+            let pos22=document.getElementById(_x+''+_y).textContent;
+
+            if(pos00==pos11 && pos11==pos22 && (pos00=='X' || pos00=='O'))
+            {
+                let point_win=0;
+                if(x-2>=1 && y-2>=1)
+                {
+                    let x__=x-2,y__=y-2;
+                    let thread=document.getElementById(x__+''+y__).textContent;
+                    if(thread==pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+
+                if(x+2<=rows && y+2<=cols)
+                {
+                    let __x=x-2,__y=y-2;
+                    let thread=document.getElementById(__x+''+__y).textContent;
+                    if(thread==pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+
+                if(point_win==2) return true;
+            }
+
+            let pos01 = document.getElementById(x_+''+_y).textContent;
+            let pos10 = document.getElementById(_x+''+y_).textContent;
+
+            if(pos01==pos11 && pos11==pos10 && (pos11=='X' || pos11=='O'))
+            {
+                let point_win=0;
+                if(x-2>=1 && y+2<=cols)
+                {
+                    let x__=x-2,__y=y+2;
+                    let thread=document.getElementById(x__+''+__y).textContent;
+                    if(thread==pos11 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+                if(x+2<=rows && y-2>=1)
+                {
+                    let __x=x+2,y__=y-2;
+                    let thread=document.getElementById(__x+''+y__).textContent;
+                    if(thread==pos11 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+
+                if(point_win==2) return true;
+            }
+        }
+
+        /*check 5*/
+        if(x-2>=1)
+        {
+            let x__=x-2,x_=x-1;
+            let pos02=document.getElementById(x__+''+y).textContent;
+            let pos01=document.getElementById(x_+''+y).textContent;
+            let pos00=document.getElementById(x+''+y).textContent;
+
+            if(pos00==pos01 && pos01==pos02 && (pos00=='X' || pos00=='O'))
+            {
+                let point_win=0;
+                if(x-3>=1)
+                {
+                    let x___=x-3;
+                    let thread=document.getElementById(x___+''+y).textContent;
+                    if(thread==pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+                if(x+1<=rows)
+                {
+                    let _x=x+1;
+                    let thread=document.getElementById(_x+''+y).textContent;
+                    if(thread==pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+
+                if(point_win==2) return true;
+            }
+        }
+
+        /*check 6*/
+        if(x+2<=rows)
+        {
+            let __x=x+2,_x=x+1;
+            let pos00=document.getElementById(x+''+y).textContent;
+            let pos01=document.getElementById(_x+''+y).textContent;
+            let pos02=document.getElementById(__x+''+y).textContent;
+
+            if(pos00==pos01 && pos01==pos02 && (pos00=='X' || pos00=='O'))
+            {
+                let point_win=0;
+                if(x+3<=rows)
+                {
+                    let ___x=x+3;
+                    let thread=document.getElementById(___x+''+y).textContent;
+                    if(thread==pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+
+                if(x-1>=1)
+                {
+                    let x_=x+1;
+                    let thread=document.getElementById(x_+''+y).textContent;
+                    if(thread=pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+
+                if(point_win==2) return true;
+            }
+        }
+
+        /*check 7*/
+        if(y-2>=1)
+        {
+            let y__=y-2,y_=y-1;
+            let pos00=document.getElementById(x+''+y).textContent;
+            let pos01=document.getElementById(x+''+y_).textContent;
+            let pos02=document.getElementById(x+''+y__).textContent;
+
+            if(pos00==pos01 && pos01==pos02 && (pos00=='X' || pos00=='O'))
+            {
+                let point_win=0;
+                if(y-3>=1)
+                {
+                    let y___=y-3;
+                    let thread=document.getElementById(x+''+y___).textContent;
+                    if(thread==pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+                if(y+1<=cols)
+                {
+                    let _y=y+1;
+                    let thread=document.getElementById(x+''+_y).textContent;
+                    if(thread==pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+
+                if(point_win==2) return true;
+            }
+        }
+
+        /*check 8*/
+        if(y+2<=cols)
+        {
+            let _y=y+1,__y=y+2;
+            let pos00=document.getElementById(x+''+y).textContent;
+            let pos01=document.getElementById(x+''+_y).textContent;
+            let pos02=document.getElementById(x+''+__y).textContent;
+
+            if(pos00==pos01 && pos00==pos02 && (pos00=='X' || pos00=='O'))
+            {
+                let point_win=0;
+                if(y-1>=1)
+                {
+                    let y_=y-1;
+                    let thread=document.getElementById(x+''+y_).textContent;
+                    if(thread==pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+                if(y+3<=cols)
+                {
+                    let ___y=y+3;
+                    let thread=document.getElementById(x+''+___y).textContent;
+                    if(thread==pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+
+                if(point_win==2) return true;
+            }
+        }
+
+        /*check 9*/
+        if(x-2>=1 && y-2>=1)
+        {
+            let x__=x-2,y__=y-2,x_=x-1,y_=y-1;
+            let pos02=document.getElementById(x__+''+y__).textContent;
+            let pos01=document.getElementById(x_+''+y_).textContent;
+            let pos00=document.getElementById(x+''+y).textContent;
+
+            if(pos00==pos01 && pos01==pos02 && (pos00=='X' || pos00=='O'))
+            {
+                let point_win=0;
+                if(x-3>=1 && y-3>=1)
+                {
+                    let x___=x-3,y___=y-3;
+                    let thread=document.getElementById(x___+''+y___).textContent;
+                    if(thread==pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+                if(x+1<=rows && y+1<=cols)
+                {
+                    let _x=x+1,_y=y+1;
+                    let thread=document.getElementById(_x+''+_y).textContent;
+                    if(thread==pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+
+                if(point_win==2) return true;
+            }
+        }
+
+        /*check 10*/
+        if(x-2>=1 && y+2<=cols)
+        {
+            let x__=x-2,x_=x-1,__y=y+2,_y=y+1;
+            let pos02=document.getElementById(x__+''+__y).textContent;
+            let pos01=document.getElementById(x_+''+_y).textContent;
+            let pos00=document.getElementById(x+''+y).textContent;
+
+            if(pos00==pos01 && pos01==pos02 && (pos00=='X' || pos00=='O'))
+            {
+                let point_win=0;
+                if(x-3>=1 && y+3<=cols)
+                {
+                    let x___=x-3,___y=y+3;
+                    let thread=document.getElementById(x___+''+___y).textContent;
+                    if(thread==pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+                if(x+1<=rows && y-1>=1)
+                {
+                    let _x=x+1,y_=y-1;
+                    let thread=document.getElementById(_x+''+y_).textContent;
+                    if(thread==pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+
+                if(point_win==2) return true;
+            }
+        }
+        /*check 11*/
+        if(x+2<=rows && y+2<=rows)
+        {
+            let __x=x+2,_x=x+1,__y=y+2,_y=y+1;
+            let pos02=document.getElementById(__x+''+__y).textContent;
+            let pos01=document.getElementById(_x+''+_y).textContent;
+            let pos00=document.getElementById(x+''+y).textContent;
+
+            if(pos00==pos01 && pos01==pos02 && (pos00=='X' || pos00=='O'))
+            {
+                let point_win=0;
+                if(x+3<=rows && y+3<=cols)
+                {
+                    let ___x=x+3,___y=y+3;
+                    let thread=document.getElementById(___x+''+___y).textContent;
+                    if(thread==pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+                if(x-1>=1 && y-1>=1)
+                {
+                    let x_=x-1,y_=y-1;
+                    let thread=document.getElementById(x_+''+y_).textContent;
+                    if(thread==pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                    else point_win+=1;
+                }
+
+                if(point_win==2) return true;
+            }
+        }
+
+        /*check 12*/
+        if(x+2<=rows && y-2>=1)
+        {
+            let __x=x+2,_x=x+1,y__=y-2,y_=y-1;
+            let pos02=document.getElementById(__x+''+y__).textContent;
+            let pos01=document.getElementById(_x+''+y_).textContent;
+            let pos00=document.getElementById(x+''+y).textContent;
+
+            if(pos00==pos01 && pos01==pos02 && (pos00=='X' || pos00=='O'))
+            {
+                let point_win=0;
+                if(x+3<=rows && y-3>=1)
+                {
+                    let ___x=x+3,y___=y-3;
+                    let thread=document.getElementById(___x+''+y___).textContent;
+                    if(thread==pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+                if(x-1>=1 && y+1<=cols)
+                {
+                    let x_=x-1,_y=y+1;
+                    let thread=document.getElementById(x_+''+_y).textContent;
+                    if(thread==pos00 || thread=='.')
+                    {
+                        point_win+=1;
+                    }
+                }
+                else point_win+=1;
+
+                if(point_win==2) return true;
+            }
+        }
+    }
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
